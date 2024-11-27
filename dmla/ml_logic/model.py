@@ -1,53 +1,46 @@
 import numpy as np
-import time
-
-from colorama import Fore, Style
 from typing import Tuple
-
-# Timing the TF import
-print(Fore.BLUE + "\nLoading TensorFlow..." + Style.RESET_ALL)
-start = time.perf_counter()
-
 from tensorflow import keras
 from keras import Model, Sequential, layers, regularizers, optimizers
 from keras.callbacks import EarlyStopping
-
-end = time.perf_counter()
-print(f"\n✅ TensorFlow loaded ({round(end - start, 2)}s)")
-
+from keras.layers import Conv2D, MaxPooling2D, Flatten, Dense
+from dmla.params import TARGETED_IMAGES_X,TARGETED_IMAGES_Y
 
 
-def initialize_model(input_shape: tuple) -> Model:
-    """
-    Initialize the Neural Network with random weights
-    """
-    reg = regularizers.l1_l2(l2=0.005)
+def initialize_model():
+
+    input_dim = (TARGETED_IMAGES_X,TARGETED_IMAGES_Y,3)
 
     model = Sequential()
-    model.add(layers.Input(shape=input_shape))
-    model.add(layers.Dense(100, activation="relu", kernel_regularizer=reg))
-    model.add(layers.BatchNormalization(momentum=0.9))
-    model.add(layers.Dropout(rate=0.1))
-    model.add(layers.Dense(50, activation="relu"))
-    model.add(layers.BatchNormalization(momentum=0.9))  # use momentum=0 to only use statistic of the last seen minibatch in inference mode ("short memory"). Use 1 to average statistics of all seen batch during training histories.
-    model.add(layers.Dropout(rate=0.1))
-    model.add(layers.Dense(1, activation="linear"))
 
-    print("✅ Model initialized")
+    model.add(Conv2D(16, (5, 5), activation = 'relu', padding = 'same', input_shape=TARGETED_IMAGES_X,TARGETED_IMAGES_Y,3))
+    model.add(MaxPooling2D((2, 2)))
 
+
+    model.add(Conv2D(32, (3, 3), activation = 'relu', padding = 'same'))
+    model.add(MaxPooling2D((2, 2)))
+
+
+    model.add(Conv2D(64, (3, 3), activation = 'relu', padding = 'same'))
+    model.add(MaxPooling2D((2, 2)))
+
+    model.add(Flatten())
+    model.add(Dense(100, activation = 'relu'))
+
+    model.add(Dense(1, activation = 'sigmoid'))
+
+    return model
+
+
+
+
+def compile_model(model):
+    model.compile(loss = 'binary_crossentropy',
+                  optimizer = 'adam',
+                  metrics = ['accuracy'])
     return model
 
 
-def compile_model(model: Model, learning_rate=0.0005) -> Model:
-    """
-    Compile the Neural Network
-    """
-    optimizer = optimizers.Adam(learning_rate=learning_rate)
-    model.compile(loss="mean_squared_error", optimizer=optimizer, metrics=["mae"])
-
-    print("✅ Model compiled")
-
-    return model
 
 def train_model(
         model: Model,
@@ -57,11 +50,7 @@ def train_model(
         patience=2,
         validation_data=None, # overrides validation_split
         validation_split=0.3
-    ) -> Tuple[Model, dict]:
-    """
-    Fit the model and return a tuple (fitted_model, history)
-    """
-    print(Fore.BLUE + "\nTraining model..." + Style.RESET_ALL)
+        ):
 
     es = EarlyStopping(
         monitor="val_loss",
@@ -81,39 +70,8 @@ def train_model(
         verbose=0
     )
 
-    print(f"✅ Model trained on {len(X)} rows with min val MAE: {round(np.min(history.history['val_mae']), 2)}")
-
     return model, history
 
 
-def evaluate_model(
-        model: Model,
-        X: np.ndarray,
-        y: np.ndarray,
-        batch_size=64
-    ) -> Tuple[Model, dict]:
-    """
-    Evaluate trained model performance on the dataset
-    """
-
-    print(Fore.BLUE + f"\nEvaluating model on {len(X)} rows..." + Style.RESET_ALL)
-
-    if model is None:
-        print(f"\n❌ No model to evaluate")
-        return None
-
-    metrics = model.evaluate(
-        x=X,
-        y=y,
-        batch_size=batch_size,
-        verbose=0,
-        # callbacks=None,
-        return_dict=True
-    )
-
-    loss = metrics["loss"]
-    mae = metrics["mae"]
-
-    print(f"✅ Model evaluated, MAE: {round(mae, 2)}")
-
-    return metrics
+if __name__=='__main__' :
+    model = initialize_model()

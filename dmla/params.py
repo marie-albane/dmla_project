@@ -2,6 +2,8 @@ import os
 import numpy as np
 
 ##################  VARIABLES  ##################
+TARGETED_IMAGES_X = os.environ.get('TARGETED_IMAGES_X')
+TARGETED_IMAGES_Y = os.environ.get('TARGETED_IMAGES_Y')#MR_26/11
 DATA_SIZE = os.environ.get("DATA_SIZE")
 CHUNK_SIZE = int(os.environ.get("CHUNK_SIZE"))
 MODEL_TARGET = os.environ.get("MODEL_TARGET")
