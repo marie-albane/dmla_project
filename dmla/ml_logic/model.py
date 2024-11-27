@@ -1,10 +1,11 @@
 import numpy as np
 from typing import Tuple
 from tensorflow import keras
-from keras import Model, Sequential, layers, regularizers, optimizers
+from keras import Model, Sequential, layers, optimizers
 from keras.callbacks import EarlyStopping
 from keras.layers import Conv2D, MaxPooling2D, Flatten, Dense
 from dmla.params import TARGETED_IMAGES_X,TARGETED_IMAGES_Y
+from dmla.ml_logic.standardisation import standardisation
 
 
 def initialize_model():
@@ -13,7 +14,7 @@ def initialize_model():
 
     model = Sequential()
 
-    model.add(Conv2D(16, (5, 5), activation = 'relu', padding = 'same', input_shape=TARGETED_IMAGES_X,TARGETED_IMAGES_Y,3))
+    model.add(Conv2D(16, (5, 5), activation = 'relu', padding = 'same', input_shape=input_dim))
     model.add(MaxPooling2D((2, 2)))
 
 
@@ -73,5 +74,38 @@ def train_model(
     return model, history
 
 
-if __name__=='__main__' :
+if __name__ == '__main__':
+    # Dimensions des images cibles
+    TARGETED_IMAGES_X = 128
+    TARGETED_IMAGES_Y = 128
+
+    # Charger les données
+    data = standardisation(
+        relative_path="data/100_data/training",
+        nb_pixels=255,
+        target_dim=(TARGETED_IMAGES_X, TARGETED_IMAGES_Y, 3)
+    )
+
+    # Simuler des étiquettes pour la classification binaire (par exemple)
+    # Vous devrez remplacer ceci par vos vraies étiquettes
+    y = np.random.randint(0, 2, size=(data.shape[0],))
+
+    # Diviser en jeu d'entraînement et jeu de test
+    from sklearn.model_selection import train_test_split
+    X_train, X_test, y_train, y_test = train_test_split(data, y, test_size=0.2, random_state=42)
+
+    # Initialiser et compiler le modèle
     model = initialize_model()
+    model = compile_model(model)
+
+    # Entraîner le modèle
+    model, history = train_model(
+        model=model,
+        X=X_train,
+        y=y_train,
+        batch_size=32,
+        validation_data=(X_test, y_test)
+    )
+
+    print("Entraînement terminé.")
+    print(f"Accuracy sur le jeu de test : {model.evaluate(X_test, y_test)[1]:.2f}")
