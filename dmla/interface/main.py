@@ -5,7 +5,7 @@ from pathlib import Path
 from colorama import Fore, Style
 from dateutil.parser import parse
 
-from dmla.params import *
+from dmla.params import
 from dmla.ml_logic.data import get_data_with_cache, clean_data, load_data_to_bq
 from dmla.ml_logic.model import initialize_model, compile_model, train_model, evaluate_model
 from dmla.ml_logic.preprocessor import preprocess_features
