@@ -13,7 +13,7 @@ def initialize_model():
 
     model = Sequential()
 
-    model.add(Conv2D(16, (5, 5), activation = 'relu', padding = 'same', input_shape=TARGETED_IMAGES_X,TARGETED_IMAGES_Y,3))
+    model.add(Conv2D(16, (5, 5), activation = 'relu', padding = 'same', input_shape=(TARGETED_IMAGES_X,TARGETED_IMAGES_Y,3)))
     model.add(MaxPooling2D((2, 2)))
 
 
