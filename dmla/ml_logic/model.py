@@ -8,6 +8,8 @@ from dmla.params import TARGETED_IMAGES_X,TARGETED_IMAGES_Y
 from dmla.ml_logic.standardisation import standardisation
 
 
+
+
 def initialize_model():
 
     input_dim = (TARGETED_IMAGES_X,TARGETED_IMAGES_Y,3)
@@ -75,9 +77,6 @@ def train_model(
 
 
 if __name__ == '__main__':
-    # Dimensions des images cibles
-    TARGETED_IMAGES_X = 128
-    TARGETED_IMAGES_Y = 128
 
     # Charger les données
     data = standardisation(
@@ -109,3 +108,21 @@ if __name__ == '__main__':
 
     print("Entraînement terminé.")
     print(f"Accuracy sur le jeu de test : {model.evaluate(X_test, y_test)[1]:.2f}")
+
+
+
+    # Évaluation du modèle
+    res = model.evaluate(X_test, y_test, verbose=0)
+
+    # Nombre de classes pour le calcul du niveau de chance
+    num_classes = len(set(y_test))  # ou utilisez len(labels) si labels est une liste des classes
+    chance_level = 1. / num_classes * 100
+
+    # Afficher les métriques
+    print("Model Evaluation:")
+    for i, metric in enumerate(model.metrics_names):
+        print(f'{metric.capitalize()}: {res[i]:.3f}')
+
+    # Comparer l'exactitude au niveau de chance
+    print(f'The model accuracy is {res[1]*100:.3f}% '
+        f'compared to a chance level of {chance_level:.3f}%.')
