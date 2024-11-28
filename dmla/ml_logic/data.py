@@ -1,6 +1,82 @@
-import pandas as pd
 import os
-import shutil
+import pandas as pd
+import numpy as np
+from PIL import Image
+from pathlib import Path
+from dmla.params import *
+
+#Fonction pour récupérer les y en fonction du dossier
+
+def target_y(relative_path="data/raw_data/training"):
+
+    """Fonction pour générer les y sous forme de DataFrame pour le dossier souhaité"""
+
+    y = 0
+
+    #DOSSIER RAW_DATA
+    #Dossier training
+    if relative_path == "data/raw_data/training":
+        path = os.path.join("data/raw_data/RFMiD_Training_Labels.csv")
+        data = pd.read_csv(path)
+        data = data.set_index("ID")
+        y = data["ARMD"]
+
+    #Dossier validation
+    elif relative_path == "data/raw_data/validation":
+        path = os.path.join("data/raw_data/RFMiD_Validation_Labels.csv")
+        data = pd.read_csv(path)
+        data = data.set_index("ID")
+        y = data["ARMD"]
+
+    #Dossier testing
+    elif relative_path == "data/raw_data/testing":
+        path = os.path.join("data/raw_data/RFMiD_Testing_Labels.csv")
+        data = pd.read_csv(path)
+        data = data.set_index("ID")
+        y = data["ARMD"]
+
+    #DOSSIER 100_DATA
+    #Dossier training
+    elif relative_path == "data/100_data/training":
+        path = os.path.join("data/raw_data/RFMiD_Training_Labels.csv")
+        data = pd.read_csv(path)
+        data = data.set_index("ID")
+        nb_sample = int(len(os.listdir(relative_path))/2)
+        data1 = data[data["ARMD"]==1].head(nb_sample)["ARMD"]
+        data2 = data[data["ARMD"]==0].head(nb_sample)["ARMD"]
+        y = pd.concat([data1, data2], ignore_index=True)
+
+
+    #Dossier validation
+    elif relative_path == "data/100_data/validation":
+        path = os.path.join("data/raw_data/RFMiD_Validation_Labels.csv")
+        data = pd.read_csv(path)
+        data = data.set_index("ID")
+        nb_sample = int(len(os.listdir(relative_path))/2)
+        data1 = data[data["ARMD"]==1].head(nb_sample)["ARMD"]
+        data2 = data[data["ARMD"]==0].head(nb_sample)["ARMD"]
+        y = pd.concat([data1, data2], ignore_index=True)
+
+    #Dossier testing
+    elif relative_path == "data/100_data/testing":
+        path = os.path.join("data/raw_data/RFMiD_Testing_Labels.csv")
+        data = pd.read_csv(path)
+        data = data.set_index("ID")
+        y = data["ARMD"]
+        nb_sample = int(len(os.listdir(relative_path))/2)
+        data1 = data[data["ARMD"]==1].head(nb_sample)["ARMD"]
+        data2 = data[data["ARMD"]==0].head(nb_sample)["ARMD"]
+        y = pd.concat([data1, data2], ignore_index=True)
+
+    else :
+        print("Le dossier n'existe pas")
+
+
+    return y
+
+
+
+
 
 
 # from google.cloud import bigquery

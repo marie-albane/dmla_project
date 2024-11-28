@@ -11,7 +11,7 @@ def resize_without_distortion(image, target_size):
         This function resizes images without distorting them.
 
         Parameters:
-        image (str): the input image in RGB format (np.array)
+        image (np.array): the input image in RGB format
         target_size (tuple): desired (width, height)
 
         Returns:
@@ -58,7 +58,7 @@ def crop_zeros(image, threshold = 20):
 
         Parameters:
         image: the input image in RGB format (np.array).
-        threshold: The value below which a pixel is considered "black". Default is 15.
+        threshold: The value below which a pixel is considered "black". Default is 20.
 
         Returns:
         cropped_image: the cropped image with black regions removed.
@@ -101,7 +101,8 @@ def preprocess_images(image_list, target_size, crop_threshold=20):
     for image in image_list:
         cropped_image = crop_zeros(image, threshold=crop_threshold)
         resized_image = resize_without_distortion(cropped_image, target_size)
-        preprocessed_images.append(resized_image)
+        normalized_image = resized_image / 255
+        preprocessed_images.append(normalized_image)
 
     return np.array(preprocessed_images)
 

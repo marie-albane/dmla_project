@@ -5,7 +5,7 @@ from keras import Model, Sequential, layers, optimizers
 from keras.callbacks import EarlyStopping
 from keras.layers import Conv2D, MaxPooling2D, Flatten, Dense
 from dmla.params import TARGETED_IMAGES_X,TARGETED_IMAGES_Y
-from dmla.ml_logic.standardisation import standardisation
+from dmla.ml_logic.preprocessor import *
 
 
 
