@@ -18,8 +18,6 @@ def copier_coller(nb_images_par_classe=100,set_data="training",): #Fait le 26.11
 # - Vérification de la création des chemins
 # - Copie/colle
 
-
-
     #Choix du set de données
     path = os.path.join("data","raw_data","RFMiD_"+set_data.title()+"_Labels.csv")
     #path_training_set = (os.getcwd(),"data\raw_data\RFMiD_Training_Labels.csv") #regarder pour les slachs
