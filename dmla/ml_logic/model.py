@@ -1,13 +1,11 @@
 import numpy as np
 from typing import Tuple
 from tensorflow import keras
-from keras import Model, Sequential, layers, optimizers
+from keras import Model, Sequential, layers, optimizers, metrics
 from keras.callbacks import EarlyStopping
 from keras.layers import Conv2D, MaxPooling2D, Flatten, Dense
 from dmla.params import TARGETED_IMAGES_X,TARGETED_IMAGES_Y
-from dmla.ml_logic.preprocessor import *
-
-
+# from dmla.ml_logic.preprocessor import *
 
 
 def initialize_model():
@@ -32,17 +30,18 @@ def initialize_model():
 
     model.add(Dense(1, activation = 'sigmoid'))
 
+    print("✅ Initialisation modèle: done \n")
+
     return model
-
-
 
 
 def compile_model(model):
     model.compile(loss = 'binary_crossentropy',
                   optimizer = 'adam',
-                  metrics = ['accuracy'])
-    return model
+                  metrics = ['accuracy',metrics.Recall(), metrics.Precision()])
 
+    print("✅ Compilation modèle: done \n")
+    return model
 
 
 def train_model(
@@ -75,23 +74,12 @@ def train_model(
 
     return model, history
 
-
-if __name__ == '__main__':
-
-    # Charger les données
-    data = standardisation(
-        relative_path="data/100_data/training",
-        nb_pixels=255,
-        target_dim=(TARGETED_IMAGES_X, TARGETED_IMAGES_Y, 3)
-    )
-
-    # Simuler des étiquettes pour la classification binaire (par exemple)
-    # Vous devrez remplacer ceci par vos vraies étiquettes
-    y = np.random.randint(0, 2, size=(data.shape[0],))
-
-    # Diviser en jeu d'entraînement et jeu de test
-    from sklearn.model_selection import train_test_split
-    X_train, X_test, y_train, y_test = train_test_split(data, y, test_size=0.2, random_state=42)
+def modelisation(X_train_proc,
+                 y_train_proc,
+                 X_val_proc,
+                 y_val_proc,
+                 X_test_proc,
+                 y_test_proc):
 
     # Initialiser et compiler le modèle
     model = initialize_model()
@@ -100,29 +88,27 @@ if __name__ == '__main__':
     # Entraîner le modèle
     model, history = train_model(
         model=model,
-        X=X_train,
-        y=y_train,
+        X=X_train_proc,
+        y=y_train_proc,
         batch_size=32,
-        validation_data=(X_test, y_test)
+        validation_data=(X_val_proc, y_val_proc)
     )
 
     print("Entraînement terminé.")
-    print(f"Accuracy sur le jeu de test : {model.evaluate(X_test, y_test)[1]:.2f}")
-
-
 
     # Évaluation du modèle
-    res = model.evaluate(X_test, y_test, verbose=0)
-
-    # Nombre de classes pour le calcul du niveau de chance
-    num_classes = len(set(y_test))  # ou utilisez len(labels) si labels est une liste des classes
-    chance_level = 1. / num_classes * 100
+    # resultat = model.evaluate(X_val_proc, y_val_proc, verbose=0)
 
     # Afficher les métriques
-    print("Model Evaluation:")
-    for i, metric in enumerate(model.metrics_names):
-        print(f'{metric.capitalize()}: {res[i]:.3f}')
+    # print(f"Accuracy sur le jeu de test : {resultat[1]:.2f}")
 
-    # Comparer l'exactitude au niveau de chance
-    print(f'The model accuracy is {res[1]*100:.3f}% '
-        f'compared to a chance level of {chance_level:.3f}%.')
+    # print("Evaluation du modèle:")
+    # for i, metric in enumerate(model.metrics_names):
+    #     print(f'{metric.capitalize()}: {resultat[i]:.3f}')
+
+    return model, history
+
+if __name__ == '__main__':
+    # model = initialize_model()
+    # model = compile_model(model)
+    pass
