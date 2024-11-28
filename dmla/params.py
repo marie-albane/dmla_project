@@ -5,6 +5,7 @@ import numpy as np
 TARGETED_IMAGES_X = int(os.environ.get('TARGETED_IMAGES_X',256))
 TARGETED_IMAGES_Y = int(os.environ.get('TARGETED_IMAGES_Y',256))#MR_26/11
 DATA_SIZE = os.environ.get("DATA_SIZE")
+DATA_PATH= os.environ.get("DATA_PATH")
 
 MODEL_TARGET = os.environ.get("MODEL_TARGET")
 GCP_PROJECT = os.environ.get("GCP_PROJECT")
