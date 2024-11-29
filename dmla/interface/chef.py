@@ -15,19 +15,18 @@ X_val_proc, y_val_proc = load_and_process_100images(wanted_dataset = "validation
 X_test_proc, y_test_proc = load_and_process_100images(wanted_dataset =  "testing")
 
 
-
-model,history = modelisation(X_train_proc,
-                 y_train_proc,
-                 X_val_proc,
-                 y_val_proc,
-                 X_test_proc,
-                 y_test_proc)
+model, history, params, metrics_dic = modelisation(X_train_proc,
+                                                y_train_proc,
+                                                X_val_proc,
+                                                y_val_proc,
+                                                X_test_proc,
+                                                y_test_proc)
 
 
 # Étape 3 : Sauvegarder le modèle et les résultats
 #print("Sauvegarde du modèle et des résultats...")
-#save_model(model, params)
-#save_results(score)
+save_model(model)
+# save_results(score)
 
 #print("Pipeline terminé avec succès.")
 
