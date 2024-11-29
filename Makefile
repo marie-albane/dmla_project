@@ -21,9 +21,9 @@ run_all: run_preprocess run_train run_pred run_evaluate
 ##################### RUN DMLA #####################
 
 run_100_data:
-	python -c 'from dmla.ml_logic.data import copier_coller; copier_coller(100,"training")'
-	python -c 'from dmla.ml_logic.data import copier_coller; copier_coller(30,"validation")'
-	python -c 'from dmla.ml_logic.data import copier_coller; copier_coller(20,"testing")'
+	python -c 'from dmla.utils import copier_coller; copier_coller(20,"training")'
+	python -c 'from dmla.utils import copier_coller; copier_coller(10,"validation")'
+	python -c 'from dmla.utils import copier_coller; copier_coller(10,"testing")'
 
 
 
