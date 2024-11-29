@@ -96,17 +96,20 @@ def modelisation(X_train_proc,
 
     print("Entraînement terminé.")
 
-    # Évaluation du modèle
-    # resultat = model.evaluate(X_val_proc, y_val_proc, verbose=0)
-
-    # Afficher les métriques
-    # print(f"Accuracy sur le jeu de test : {resultat[1]:.2f}")
-
-    # print("Evaluation du modèle:")
-    # for i, metric in enumerate(model.metrics_names):
-    #     print(f'{metric.capitalize()}: {resultat[i]:.3f}')
-
     return model, history
+
+    # Évaluation sur le jeu de validation
+print("Évaluation du modèle sur le jeu de validation...")
+resultat = model.evaluate(X_val_proc, y_val_proc, verbose=0)
+
+print(f"Résultats sur le jeu de validation :")
+for i, metric in enumerate(model.metrics_names):
+        print(f"{metric.capitalize()} : {resultat[i]:.3f}")
+
+    # Retourner le modèle et l'historique
+    return model, history
+
+
 
 if __name__ == '__main__':
     # model = initialize_model()
