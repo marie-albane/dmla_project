@@ -2,8 +2,8 @@ import os
 import numpy as np
 
 ##################  VARIABLES  ##################
-TARGETED_IMAGES_X = int(os.environ.get('TARGETED_IMAGES_X',256))
-TARGETED_IMAGES_Y = int(os.environ.get('TARGETED_IMAGES_Y',256))#MR_26/11
+TARGETED_IMAGES_X=int(os.environ.get('TARGETED_IMAGES_X',256))
+TARGETED_IMAGES_Y=int(os.environ.get('TARGETED_IMAGES_Y',256))
 DATA_SIZE = os.environ.get("DATA_SIZE")
 DATA_PATH= os.environ.get("DATA_PATH")
 

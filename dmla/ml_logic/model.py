@@ -94,24 +94,23 @@ def modelisation(X_train_proc,
         validation_data=(X_val_proc, y_val_proc)
     )
 
-    print("Entraînement terminé.")
-
-    return model, history
+    print("✅ Entrainement modèle: done \n")
 
     # Évaluation sur le jeu de validation
-print("Évaluation du modèle sur le jeu de validation...")
-resultat = model.evaluate(X_val_proc, y_val_proc, verbose=0)
+    resultat = model.evaluate(X_val_proc, y_val_proc, verbose=0)
+    print(f"resultat: {resultat} shape: {resultat.shape()}")
 
-print(f"Résultats sur le jeu de validation :")
-for i, metric in enumerate(model.metrics_names):
-        print(f"{metric.capitalize()} : {resultat[i]:.3f}")
+    print("✅ Evaluaaation modèle sur jeu de validation: done \n")
+
+    print(f"Résultats sur le jeu de validation :")
+    for i, metric in enumerate(model.metrics_names):
+            print(f"{metric.capitalize()} : {resultat[i]:.3f}")
 
     # Retourner le modèle et l'historique
     return model, history
 
 
-
 if __name__ == '__main__':
-    # model = initialize_model()
-    # model = compile_model(model)
+    model = initialize_model()
+    model = compile_model(model)
     pass
