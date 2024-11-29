@@ -5,7 +5,7 @@ import os
 from pathlib import Path
 from dmla.params import *
 from dmla.ml_logic.model import initialize_model, compile_model, train_model, modelisation
-from dmla.ml_logic.preprocessor import preprocess_images
+from dmla.ml_logic.preprocessor import load_and_process_100images
 from dmla.ml_logic.registry import load_model, save_model, save_results
 
 

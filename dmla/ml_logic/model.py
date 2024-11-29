@@ -98,9 +98,9 @@ def modelisation(X_train_proc,
 
     # Évaluation sur le jeu de validation
     resultat = model.evaluate(X_val_proc, y_val_proc, verbose=0)
-    print(f"resultat: {resultat} shape: {resultat.shape()}")
+    # print(f"resultat: {resultat} shape: {resultat.shape()}")
 
-    print("✅ Evaluaaation modèle sur jeu de validation: done \n")
+    print("✅ Evaluation modèle sur jeu de validation: done \n")
 
     print(f"Résultats sur le jeu de validation :")
     for i, metric in enumerate(model.metrics_names):
