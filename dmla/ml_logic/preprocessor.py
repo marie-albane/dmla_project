@@ -1,11 +1,161 @@
 import numpy as np
+import pandas as pd
 import cv2
 import os
 from PIL import Image
 from pathlib import Path
+from dmla.params import DATA_PATH
+
+def load_X(wanted_dataset="Training", data_path=DATA_PATH):
+
+    """
+    Loads all images from a specified dataset folder.
+
+    Parameters:
+        wanted_dataset (str): Dataset name, defaults to "Training".
+        data_path (str): Base path to the data folder, defaults to environment variable DATA_PATH.
+
+    Returns:
+        list: A list of images (np.arrays in RGB format).
+    """
+
+    # Normalize dataset name
+    wanted_dataset = wanted_dataset.capitalize()
+
+    # Construct path
+    images_path = os.path.join(data_path, "raw_data", wanted_dataset.lower())
+
+    # Check if the folder exists
+    if not os.path.isdir(images_path):
+        raise FileNotFoundError(f"The folder {images_path} does not exist.")
+
+    # Loop through files in the folder
+    X = []
+    for file_name in sorted(os.listdir(images_path), key=lambda x: int(x.split('.')[0]) if x.split('.')[0].isdigit() else float('inf')):
+        file_path = os.path.join(images_path, file_name)
+
+        # Check if it is a file
+        if os.path.isfile(file_path):
+            # Read the image
+            image = cv2.imread(file_path)
+            if image is None:
+                print(f"Warning: {file_name} could not be loaded.")
+                continue
+
+            # Convert to RGB
+            image_rgb = cv2.cvtColor(image, cv2.COLOR_BGR2RGB)
+            X.append(image_rgb)
+
+    return X
 
 
-def resize_without_distortion(image, target_size):
+
+def load_100_X(wanted_dataset="Training", data_path=DATA_PATH):
+
+    """
+    Loads all images from a specified dataset folder.
+
+    Parameters:
+        wanted_dataset (str): Dataset name, defaults to "Training".
+        data_path (str): Base path to the data folder, defaults to environment variable DATA_PATH.
+
+    Returns:
+        list: A list of images (np.arrays in RGB format).
+    """
+
+    # Normalize dataset name
+    wanted_dataset = wanted_dataset.capitalize()
+
+    # Construct path
+    images_path = os.path.join(data_path, "100_data", wanted_dataset.lower())
+
+    # Check if the folder exists
+    if not os.path.isdir(images_path):
+        raise FileNotFoundError(f"The folder {images_path} does not exist.")
+
+    # Loop through files in the folder
+    X_100 = []
+    for file_name in sorted(os.listdir(images_path), key=lambda x: int(x.split('.')[0]) if x.split('.')[0].isdigit() else float('inf')):
+        file_path = os.path.join(images_path, file_name)
+
+        # Check if it is a file
+        if os.path.isfile(file_path):
+            # Read the image
+            image = cv2.imread(file_path)
+            if image is None:
+                print(f"Warning: {file_name} could not be loaded.")
+                continue
+
+            # Convert to RGB
+            image_rgb = cv2.cvtColor(image, cv2.COLOR_BGR2RGB)
+            X_100.append(image_rgb)
+
+    return X_100
+
+def load_y(wanted_dataset="Training", data_path= DATA_PATH):
+
+    """
+    This function loads the target (y) as a DataFrame.
+
+    Parameters:
+        wanted_dataset (str): Dataset name, defaults to "Training".
+        data_path (str): Base path to the data folder, defaults environment variable DATA_PATH
+
+    Returns:
+        pd.Series: A Series containing the ARMD target column.
+    """
+
+    # Normalize dataset name
+    wanted_dataset = wanted_dataset.capitalize()
+
+    # Construct paths
+    images_path = os.path.join(DATA_PATH, "raw_data", wanted_dataset.lower())
+    path_csv = os.path.join(DATA_PATH, "raw_data", f"RFMiD_{wanted_dataset}_Labels.csv")
+
+    # Load data
+    try:
+        data = pd.read_csv(path_csv)
+    except FileNotFoundError:
+        raise FileNotFoundError(f"CSV file not found at path: {path_csv}")
+
+    # Set index and extract ARMD column
+    if "ID" not in data.columns or "ARMD" not in data.columns:
+        raise ValueError("The required columns ('ID', 'ARMD') are missing from the CSV file.")
+
+    data = data.set_index("ID")
+    y = data["ARMD"]
+
+    return y
+
+
+def load_100_y(wanted_dataset="Training", data_path= DATA_PATH):
+
+    # Normalize dataset name
+    wanted_dataset = wanted_dataset.capitalize()
+
+    # Construct paths
+    images_path_100 = os.path.join(data_path, "100_data", wanted_dataset.lower())
+    path_csv= os.path.join(DATA_PATH, "raw_data", f"RFMiD_{wanted_dataset}_Labels.csv")
+
+    # Load data
+    try:
+        data = pd.read_csv(path_csv)
+    except FileNotFoundError:
+        raise FileNotFoundError(f"CSV file not found at path: {path_csv}")
+
+    # Set index and extract ARMD column
+    if "ID" not in data.columns or "ARMD" not in data.columns:
+        raise ValueError("The required columns ('ID', 'ARMD') are missing from the CSV file.")
+
+    nb_sample = int(len(os.listdir(images_path_100))/2)
+    data1 = data[data["ARMD"]==1].head(nb_sample)["ARMD"]
+    data2 = data[data["ARMD"]==0].head(nb_sample)["ARMD"]
+    y_100 = pd.concat([data1, data2], ignore_index=True)
+
+    return y_100
+
+
+def resize_images(image, target_size):
 
     """
         This function resizes images without distorting them.
@@ -19,6 +169,7 @@ def resize_without_distortion(image, target_size):
     """
 
     # Unpack target size tuple
+
     target_width, target_height = target_size
 
     # Get original dimensions
@@ -48,7 +199,8 @@ def resize_without_distortion(image, target_size):
 
     return canvas
 
-def crop_zeros(image, threshold = 20):
+
+def crop_images(image, threshold = 20):
 
     """
         This function removes the 0 values of an np.array representing an image in order
@@ -83,86 +235,84 @@ def crop_zeros(image, threshold = 20):
     return cropped_image
 
 
-def preprocess_images(image_list, target_size, crop_threshold=20):
+def normalize_images(image):
 
     """
-    Preprocess a list of np.arrays representing images by cropping and resizing.
+    Normalizes the pixel values of an image to the range [0, 1].
+
+    Parameters:
+    - image (numpy.ndarray): Input image with pixel values in range [0, 255].
+
+    Returns:
+    - numpy.ndarray: Normalized image with pixel values in range [0, 1].
+    """
+
+    normalized_image = image / 255.0
+
+    return normalized_image
+
+
+
+def load_and_process_images(wanted_dataset="Training",
+                               data_path=DATA_PATH,
+                               target_size=(256, 256),
+                               threshold=20):
+
+    """
+    This function loads images from a file and processess them as list
+    of np.arrays representing images by cropping and resizing.
 
     Parameters:
         image_list (list): List of np.arrays representing images.
-        target_size (tuple): Target size for resizing (width, height).
-        crop_threshold (int): Threshold for cropping black regions.
+        target_size (tuple): Target size for resizing (width, height), it has a default fo 256x256.
+        crop_threshold (int): Threshold for cropping black regions, it has a default of 20.
 
     Returns:
         list: List of preprocessed np.arrays.
     """
 
-    preprocessed_images = []
-    for image in image_list:
-        cropped_image = crop_zeros(image, threshold=crop_threshold)
-        resized_image = resize_without_distortion(cropped_image, target_size)
-        normalized_image = resized_image / 255
-        preprocessed_images.append(normalized_image)
+    X_load = load_X(wanted_dataset)
+    y = load_y(wanted_dataset)
 
-    return np.array(preprocessed_images)
+    X_processed = []
+
+    for image in X_load:
+        cropped_images = crop_images(image, threshold)
+        resized_images = resize_images(cropped_images, target_size)
+        normalized_images = normalize_images(resized_images)
+        X_processed.append(normalized_images)
+
+    return np.array(X_processed), np.array(y)
 
 
 
-def standardisation(relative_path="../data/100_data/training",
-                    nb_pixels=255,
-                    target_dim=(None, None, 3)):
+def load_and_process_100images(wanted_dataset="Training",
+                               data_path=DATA_PATH,
+                               target_size=(256, 256),
+                               threshold=20):
+
     """
-    Charge les images d'un dossier, redimensionne si nécessaire,
-    normalise les pixels et retourne les données.
+    This function loads images from a file and processess them as list
+    of np.arrays representing images by cropping and resizing.
 
     Parameters:
-        relative_path (str): Chemin relatif vers le dossier contenant les images.
-        nb_pixels (int): Valeur pour normaliser les pixels (par défaut 255).
-        target_dim (tuple): Dimensions cibles (height, width, channels). None pour ne pas redimensionner.
+        image_list (list): List of np.arrays representing images.
+        target_size (tuple): Target size for resizing (width, height), it has a default fo 256x256.
+        crop_threshold (int): Threshold for cropping black regions, it has a default of 20.
 
     Returns:
-        np.ndarray: Tableau contenant les valeurs normalisées de toutes les images.
+        list: List of preprocessed np.arrays.
     """
-    # Construire le chemin absolu depuis le chemin relatif
-    base_dir = Path(__file__).resolve().parent
-    # image_dir = os.path.join(base_dir, relative_path)
-    image_dir = os.path.join(relative_path)
 
+    X_load = load_100_X(wanted_dataset)
+    y_100 = load_100_y(wanted_dataset)
 
-    # Vérifier que le dossier existe
-    if not os.path.isdir(image_dir):
-        raise FileNotFoundError(f"Le dossier spécifié n'existe pas : {image_dir}")
+    X_100_processed = []
 
-    # Liste pour stocker les images prétraitées
-    images_data = []
+    for image in X_load:
+        cropped_images = crop_images(image, threshold)
+        resized_images = resize_images(cropped_images, target_size)
+        normalized_images = normalize_images(resized_images)
+        X_100_processed.append(normalized_images)
 
-    # Parcourir tous les fichiers du dossier
-    for file_name in os.listdir(image_dir):
-        file_path = os.path.join(image_dir, file_name)
-
-        # Vérifier si le fichier est une image (par extension)
-        if file_name.lower().endswith('.png'):
-            # Charger l'image
-            with Image.open(file_path) as img:
-                # Redimensionner si une taille cible est donnée
-                if target_dim[0] is not None and target_dim[1] is not None:
-                    img = img.resize((target_dim[1], target_dim[0]))
-
-                # Convertir l'image en tableau numpy
-                img_array = np.array(img).astype('float32')
-
-                # Gérer les images en niveaux de gris
-                if img_array.ndim == 2:
-                    img_array = np.expand_dims(img_array, axis=-1)
-                if img_array.shape[-1] != target_dim[-1]:
-                    raise ValueError(f"L'image {file_name} ne correspond pas aux dimensions attendues {target_dim}.")
-
-                # Normaliser les pixels
-                img_array /= nb_pixels
-
-                # Ajouter au tableau des images
-                images_data.append(img_array)
-
-    # Convertir la liste en tableau numpy
-    return np.array(images_data)
-    # model.py needs to be modified.
+    return np.array(X_100_processed), np.array(y_100)
