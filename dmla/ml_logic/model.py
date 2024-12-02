@@ -4,7 +4,7 @@ from tensorflow import keras
 from keras import Model, Sequential, layers, optimizers, metrics
 from keras.callbacks import EarlyStopping
 from keras.layers import Conv2D, MaxPooling2D, Flatten, Dense
-from dmla.params import TARGETED_IMAGES_X,TARGETED_IMAGES_Y
+from dmla.params import TARGETED_IMAGES_X,TARGETED_IMAGES_Y, DATA_PATH
 # from dmla.ml_logic.preprocessor import *
 
 
@@ -77,9 +77,7 @@ def train_model(
 def modelisation(X_train_proc,
                  y_train_proc,
                  X_val_proc,
-                 y_val_proc,
-                 X_test_proc,
-                 y_test_proc):
+                 y_val_proc):
 
     # Initialiser et compiler le modèle
     model = initialize_model()
@@ -102,17 +100,22 @@ def modelisation(X_train_proc,
 
     params = dict(
         context="train",
+        data_path = DATA_PATH,
+        targeted_image_x=TARGETED_IMAGES_X,
+        targeted_image_y=TARGETED_IMAGES_Y,
         train_size=train_size,
         validation_size = validation_size)
 
+    print("keys:",history.history.keys())
+
     loss = np.min(history.history['loss'])
-    accuracy = np.min(history.history['accuracy'])
+    accuracy = np.max(history.history['accuracy'])
     recall = np.min(history.history['recall'])
-    precision = np.min(history.history['precision'])
+    precision = np.max(history.history['precision'])
     val_loss = np.min(history.history['val_loss'])
-    val_accuracy = np.min(history.history['val_accuracy'])
-    val_recall = np.min(history.history['val_recall'])
-    val_precision = np.min(history.history['val_precision'])
+    val_accuracy = np.max(history.history['val_accuracy'])
+    val_recall = np.max(history.history['val_recall'])
+    val_precision = np.max(history.history['val_precision'])
 
     metrics_dic = dict(loss=loss,
                     accuracy = accuracy,
