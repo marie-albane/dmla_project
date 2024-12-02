@@ -4,7 +4,7 @@ from tensorflow import keras
 from keras import Model, Sequential, layers, optimizers, metrics
 from keras.callbacks import EarlyStopping
 from keras.layers import Conv2D, MaxPooling2D, Flatten, Dense
-from dmla.params import TARGETED_IMAGES_X,TARGETED_IMAGES_Y
+from dmla.params import TARGETED_IMAGES_X,TARGETED_IMAGES_Y, DATA_PATH
 # from dmla.ml_logic.preprocessor import *
 
 
@@ -77,9 +77,7 @@ def train_model(
 def modelisation(X_train_proc,
                  y_train_proc,
                  X_val_proc,
-                 y_val_proc,
-                 X_test_proc,
-                 y_test_proc):
+                 y_val_proc):
 
     # Initialiser et compiler le modèle
     model = initialize_model()
@@ -95,22 +93,44 @@ def modelisation(X_train_proc,
     )
 
     print("✅ Entrainement modèle: done \n")
+    print(model.summary())
 
-    # Évaluation sur le jeu de validation
-    resultat = model.evaluate(X_val_proc, y_val_proc, verbose=0)
-    # print(f"resultat: {resultat} shape: {resultat.shape()}")
+    train_size = len(X_train_proc)
+    validation_size = len(X_val_proc)
 
-    print("✅ Evaluation modèle sur jeu de validation: done \n")
+    params = dict(
+        context="train",
+        data_path = DATA_PATH,
+        targeted_image_x=TARGETED_IMAGES_X,
+        targeted_image_y=TARGETED_IMAGES_Y,
+        train_size=train_size,
+        validation_size = validation_size)
 
-    print(f"Résultats sur le jeu de validation :")
-    for i, metric in enumerate(model.metrics_names):
-            print(f"{metric.capitalize()} : {resultat[i]:.3f}")
+    print("keys:",history.history.keys())
+
+    loss = np.min(history.history['loss'])
+    accuracy = np.max(history.history['accuracy'])
+    recall = np.min(history.history['recall'])
+    precision = np.max(history.history['precision'])
+    val_loss = np.min(history.history['val_loss'])
+    val_accuracy = np.max(history.history['val_accuracy'])
+    val_recall = np.max(history.history['val_recall'])
+    val_precision = np.max(history.history['val_precision'])
+
+    metrics_dic = dict(loss=loss,
+                    accuracy = accuracy,
+                    recall = recall,
+                    precision = precision,
+                    val_loss = val_loss,
+                    val_accuracy = val_accuracy,
+                    val_recall = val_recall,
+                    val_precision = val_precision)
 
     # Retourner le modèle et l'historique
-    return model, history
+    return model, history, params, metrics_dic
 
 
 if __name__ == '__main__':
-    model = initialize_model()
-    model = compile_model(model)
+    # model = initialize_model()
+    # model = compile_model(model)
     pass
