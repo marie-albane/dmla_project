@@ -106,16 +106,29 @@ def modelisation(X_train_proc,
         train_size=train_size,
         validation_size = validation_size)
 
-    print("keys:",history.history.keys())
+    print("======= PARAMETRES =========")
+    print("context: ","train")
+    print("data path: ",DATA_PATH)
+    print(f"taille de l'image: {TARGETED_IMAGES_X}x{TARGETED_IMAGES_X}")
+    print("Nombre d images de training: ",train_size)
+    print("Nombre d images de validation: ",validation_size)
+    print("")
 
     loss = np.min(history.history['loss'])
     accuracy = np.max(history.history['accuracy'])
-    recall = np.min(history.history['recall'])
+    recall = np.max(history.history['recall'])
     precision = np.max(history.history['precision'])
     val_loss = np.min(history.history['val_loss'])
     val_accuracy = np.max(history.history['val_accuracy'])
     val_recall = np.max(history.history['val_recall'])
     val_precision = np.max(history.history['val_precision'])
+
+    print("======= METRIQUES (training / validation) =========")
+    print(f"loss: {round(loss,4)} / {round(val_loss,4)}")
+    print(f"accuracy: {round(accuracy,4)} / {round(val_accuracy,4)}")
+    print(f"recall: {round(recall,4)} / {round(val_recall,4)}")
+    print(f"precision: {round(precision,4)} / {round(val_precision,4)}")
+    print("")
 
     metrics_dic = dict(loss=loss,
                     accuracy = accuracy,
