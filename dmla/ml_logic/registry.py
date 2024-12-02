@@ -20,10 +20,10 @@ def save_model(model: keras.Model = None) -> None:
 
     """
 
-    #timestamp = time.strftime("%Y%m%d-%H%M%S") A voir si ça permet de
+    timestamp = time.strftime("%Y%m%d-%H%M%S")
 
     # Save model locally
-    model_path = os.path.join(DATA_PATH, "models",".h5") #On va enregistrer  simple mais prévoir multiple f"{timestamp}.h5"
+    model_path = os.path.join(DATA_PATH, "models",f"{timestamp}.h5")
     model.save(model_path)
 
     print("✅ Model saved locally")
@@ -44,14 +44,17 @@ def load_model() -> keras.Model:
 
     # Get the latest model version name by the timestamp on disk
     local_model_directory = os.path.join(DATA_PATH, "models")
-    local_model_paths = os.path.join(local_model_directory, ".h5")
+    local_model_paths = glob.glob(f"{local_model_directory}/*")
 
     if not local_model_paths:
         return None
 
-    else :
-        latest_model = keras.models.load_model(local_model_paths)
+    most_recent_model_path_on_disk = sorted(local_model_paths)[-1]
 
-        print("✅ Voici l'unique modele sauvegarde")
+    latest_model = keras.models.load_model(most_recent_model_path_on_disk)
 
-        return latest_model
+    model_number = most_recent_model_path_on_disk.split('/')[-1].split('.')[0]
+
+    print(f"✅ Vous venez de charger le dernier modèle, le n° {model_number}")
+
+    return latest_model, model_number
