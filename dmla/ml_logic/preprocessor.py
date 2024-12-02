@@ -377,4 +377,4 @@ def load_and_process_random_image(wanted_dataset="testing", data_path=DATA_PATH,
     normalized_image = normalize_images(resized_image)
 
 
-    return normalized_image
+    return normalized_image, random_file
