@@ -31,8 +31,9 @@ def load_X(wanted_dataset="Training", data_path=DATA_PATH):
         raise FileNotFoundError(f"The folder {images_path} does not exist.")
 
     # Loop through files in the folder
+
     X = []
-    file_name_final =""
+
     for file_name in sorted(os.listdir(images_path), key=lambda x: int(x.split('.')[0]) if x.split('.')[0].isdigit() else float('inf')):
         file_path = os.path.join(images_path, file_name)
         file_name_final = file_name
@@ -49,7 +50,7 @@ def load_X(wanted_dataset="Training", data_path=DATA_PATH):
             image_rgb = cv2.cvtColor(image, cv2.COLOR_BGR2RGB)
             X.append(image_rgb)
 
-    return X, file_name_final
+    return X
 
 
 
@@ -78,6 +79,7 @@ def load_100_X(wanted_dataset="Training", data_path=DATA_PATH):
 
     # Loop through files in the folder
     X_100 = []
+
     for file_name in sorted(os.listdir(images_path), key=lambda x: int(x.split('.')[0]) if x.split('.')[0].isdigit() else float('inf')):
         file_path = os.path.join(images_path, file_name)
 
