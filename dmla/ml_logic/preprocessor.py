@@ -1,5 +1,6 @@
 import numpy as np
 import pandas as pd
+import random
 import cv2
 import os
 from PIL import Image
@@ -92,6 +93,8 @@ def load_100_X(wanted_dataset="Training", data_path=DATA_PATH):
 
     return X_100
 
+
+
 def load_y(wanted_dataset="Training", data_path= DATA_PATH):
 
     """
@@ -128,6 +131,7 @@ def load_y(wanted_dataset="Training", data_path= DATA_PATH):
     return y
 
 
+
 def load_100_y(wanted_dataset="Training", data_path= DATA_PATH):
 
     # Normalize dataset name
@@ -153,6 +157,7 @@ def load_100_y(wanted_dataset="Training", data_path= DATA_PATH):
     y_100 = pd.concat([data1, data2], ignore_index=True)
 
     return y_100
+
 
 
 def resize_images(image, target_size):
@@ -200,6 +205,7 @@ def resize_images(image, target_size):
     return canvas
 
 
+
 def crop_images(image, threshold = 20):
 
     """
@@ -235,6 +241,7 @@ def crop_images(image, threshold = 20):
     return cropped_image
 
 
+
 def normalize_images(image):
 
     """
@@ -263,12 +270,13 @@ def load_and_process_images(wanted_dataset="Training",
     of np.arrays representing images by cropping and resizing.
 
     Parameters:
-        image_list (list): List of np.arrays representing images.
+        wanted_dataset(str): name of desired dataset to load
+        data_path: base path to the data folder, defaults to environment variable DATA_PATH.
         target_size (tuple): Target size for resizing (width, height), it has a default fo 256x256.
-        crop_threshold (int): Threshold for cropping black regions, it has a default of 20.
+        threshold (int): Threshold for cropping black regions, it has a default of 20.
 
     Returns:
-        list: List of preprocessed np.arrays.
+        tuple: two np.arrays, a ndarray representing the images and a ondarray representing the target.
     """
 
     X_load = load_X(wanted_dataset)
@@ -292,16 +300,17 @@ def load_and_process_100images(wanted_dataset="Training",
                                threshold=20):
 
     """
-    This function loads images from a file and processess them as list
+    This function loads sample images from a file and processess them as list
     of np.arrays representing images by cropping and resizing.
 
     Parameters:
-        image_list (list): List of np.arrays representing images.
+        wanted_dataset(str): name of desired dataset to load
+        data_path: base path to the data folder, defaults to environment variable DATA_PATH.
         target_size (tuple): Target size for resizing (width, height), it has a default fo 256x256.
-        crop_threshold (int): Threshold for cropping black regions, it has a default of 20.
+        threshold (int): Threshold for cropping black regions, it has a default of 20.
 
     Returns:
-        list: List of preprocessed np.arrays.
+        tuple: two np.arrays, a ndarray representing the images and a ondarray representing the target.
     """
 
     X_load = load_100_X(wanted_dataset)
@@ -316,3 +325,56 @@ def load_and_process_100images(wanted_dataset="Training",
         X_100_processed.append(normalized_images)
 
     return np.array(X_100_processed), np.array(y_100)
+
+
+
+def load_and_process_random_image(wanted_dataset="testing", data_path=DATA_PATH,
+                      target_size=(256, 256), threshold=20):
+    """
+    Loads and processes a random image from a specified dataset folder.
+
+    Parameters:
+        wanted_dataset (str): Dataset name, defaults to "testing".
+        data_path (str): Base path to the data folder, defaults to environment variable DATA_PATH.
+        target_size (tuple): select a desired size for a processed image, default set to 256, 256.
+        threshold: select a desired treshold for cropping, default set to 20.
+
+    Returns:
+        np.array: The chosen random image in RGB format.
+    """
+
+    # Normalize dataset name
+    wanted_dataset = wanted_dataset.lower()
+
+    # Construct path
+    images_path = os.path.join(data_path, "raw_data", wanted_dataset)
+
+    # Check if the folder exists
+    if not os.path.isdir(images_path):
+        raise FileNotFoundError(f"The folder {images_path} does not exist.")
+
+    # Get a list of all files in the folder
+    image_files = [f for f in os.listdir(images_path) if os.path.isfile(os.path.join(images_path, f))]
+
+    if not image_files:
+        raise FileNotFoundError(f"No images found in the folder {images_path}.")
+
+    # Choose a random file
+    random_file = random.choice(image_files)
+    file_path = os.path.join(images_path, random_file)
+
+    # Load the image
+    image = cv2.imread(file_path)
+    if image is None:
+        raise ValueError(f"Failed to load the image {random_file}.")
+
+    # Convert the image to RGB
+    image_rgb = cv2.cvtColor(image, cv2.COLOR_BGR2RGB)
+
+    # Process image
+    cropped_image = crop_images(image_rgb, threshold)
+    resized_image = resize_images(cropped_image, target_size)
+    normalized_image = normalize_images(resized_image)
+
+
+    return normalized_image
