@@ -10,6 +10,7 @@ from dmla.ml_logic.registry import load_model, save_model
 
 
 # préparation des données
+
 X_train_proc, y_train_proc = load_and_process_images(wanted_dataset = "training")
 X_train_pos, y_train_pos = load_and_process_images(wanted_dataset = "positive")
 X_val_proc, y_val_proc = load_and_process_images(wanted_dataset = "validation")
