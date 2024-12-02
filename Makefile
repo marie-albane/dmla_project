@@ -25,9 +25,15 @@ run_100_data:
 	python -c 'from dmla.utils import copier_coller; copier_coller(30,"validation")'
 	python -c 'from dmla.utils import copier_coller; copier_coller(20,"testing")'
 
+##################### DELETE DLA #####################
+delete_training:
+	python -c 'from dmla.utils import delete; delete("training")'
 
+delete_validation:
+	python -c 'from dmla.utils import delete; delete("validation")'
 
-##################### TESTS #####################
+delete_testing:
+	python -c 'from dmla.utils import delete; delete("testing")'
 
 ################### DATA SOURCES ACTIONS ################
 
