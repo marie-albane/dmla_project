@@ -106,5 +106,41 @@ def copier_coller(nb_images_par_classe=100,set_data="training",): #Fait le 26.11
     if len(introuvable)!=0:
         print(f"Attention voici la liste des images non-copiées {introuvable}")
 
+
+def delete(set_data="training"):
+    """
+    Supprime tous les fichiers .png dans le dossier spécifié par set_data.
+
+    Args:
+        set_data (str): Nom du sous-dossier dans lequel supprimer les images.
+
+    Returns:
+        str: Un message indiquant le nombre de fichiers supprimés et leur dossier.
+    """
+    # Construire le chemin du dossier
+    dossier_source = os.path.join(DATA_PATH, "100_data", set_data.lower())
+    print(dossier_source)
+
+    # Vérifier que le dossier existe
+    if not os.path.isdir(dossier_source):
+        return f"❌ Le dossier spécifié n'existe pas : {dossier_source}"
+
+    # Récupérer la liste des fichiers .png dans le dossier
+    images_list = [f for f in os.listdir(dossier_source) if f.lower().endswith('.png')]
+    compteur = 0
+
+    # Supprimer les fichiers un par un
+    for image_name in images_list:
+        chemin_image = os.path.join(dossier_source, image_name)
+        try:
+            os.remove(chemin_image)
+            compteur += 1
+        except Exception as e:
+            print(f"⚠️ Erreur lors de la suppression de {chemin_image}: {e}")
+
+    # Retourner le message final
+    print(f"✅ Total d'images supprimées: {compteur} / {len(images_list)} pour {set_data}")
+
 if __name__ == '__main__':
     copier_coller(50,"validation")
+    delete("training")
