@@ -33,10 +33,10 @@ def load_X(wanted_dataset="Training", data_path=DATA_PATH):
     # Loop through files in the folder
 
     X = []
-    final_file_name = ""
+    file_name_final =""
     for file_name in sorted(os.listdir(images_path), key=lambda x: int(x.split('.')[0]) if x.split('.')[0].isdigit() else float('inf')):
         file_path = os.path.join(images_path, file_name)
-        final_file_name = file_name
+        file_name_final = file_name
 
         # Check if it is a file
         if os.path.isfile(file_path):
@@ -50,7 +50,7 @@ def load_X(wanted_dataset="Training", data_path=DATA_PATH):
             image_rgb = cv2.cvtColor(image, cv2.COLOR_BGR2RGB)
             X.append(image_rgb)
 
-    return X, final_file_name
+    return X, file_name_final
 
 
 
@@ -381,4 +381,4 @@ def load_and_process_random_image(wanted_dataset="testing", data_path=DATA_PATH,
     normalized_image = normalize_images(resized_image)
 
 
-    return image_rgb, normalized_image, random_file
+    return image_rgb, cropped_image, resized_image, normalized_image, random_file
