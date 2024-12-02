@@ -10,8 +10,8 @@ import matplotlib.pyplot as plt
 def predict() :
 
     # Charger une image aléatoire preprocessed
-    image_test, image_name = load_and_process_random_image(wanted_dataset = "testing")
-    image_with_batch = np.expand_dims(image_test, axis=0)
+    image_rgb, normalized_image, image_name = load_and_process_random_image(wanted_dataset = "testing")
+    image_with_batch = np.expand_dims(normalized_image, axis=0)
     print("✅ => image chargée")
 
 
@@ -34,7 +34,8 @@ def predict() :
         print(f"⚠️ Vous présentez les symptômes d'une DMLA\n nous allons programmer un prochain rendez-vous spécialiste")
 
     print("\nPour l'image:",image_name)
-    plt.imshow(image_test)
+    plt.imshow(image_rgb)
+    plt.imshow(normalized_image)
     plt.show()
 
 if __name__ == '__main__':
