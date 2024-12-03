@@ -33,6 +33,8 @@ def load_X(wanted_dataset="Training", data_path=DATA_PATH):
     # Loop through files in the folder
 
     X = []
+    #compteur_load = 0
+
 
     for file_name in sorted(os.listdir(images_path), key=lambda x: int(x.split('.')[0]) if x.split('.')[0].isdigit() else float('inf')):
         file_path = os.path.join(images_path, file_name)
@@ -49,53 +51,11 @@ def load_X(wanted_dataset="Training", data_path=DATA_PATH):
             # Convert to RGB
             image_rgb = cv2.cvtColor(image, cv2.COLOR_BGR2RGB)
             X.append(image_rgb)
+            #compteur_load += 1
+            #print(f"Nombre d'images chargées {compteur_load}")
 
     return X
 
-
-
-def load_100_X(wanted_dataset="Training", data_path=DATA_PATH):
-
-    """
-    Loads all images from a specified dataset folder.
-
-    Parameters:
-        wanted_dataset (str): Dataset name, defaults to "Training".
-        data_path (str): Base path to the data folder, defaults to environment variable DATA_PATH.
-
-    Returns:
-        list: A list of images (np.arrays in RGB format).
-    """
-
-    # Normalize dataset name
-    wanted_dataset = wanted_dataset.capitalize()
-
-    # Construct path
-    images_path = os.path.join(data_path, "100_data", wanted_dataset.lower())
-
-    # Check if the folder exists
-    if not os.path.isdir(images_path):
-        raise FileNotFoundError(f"The folder {images_path} does not exist.")
-
-    # Loop through files in the folder
-    X_100 = []
-
-    for file_name in sorted(os.listdir(images_path), key=lambda x: int(x.split('.')[0]) if x.split('.')[0].isdigit() else float('inf')):
-        file_path = os.path.join(images_path, file_name)
-
-        # Check if it is a file
-        if os.path.isfile(file_path):
-            # Read the image
-            image = cv2.imread(file_path)
-            if image is None:
-                print(f"Warning: {file_name} could not be loaded.")
-                continue
-
-            # Convert to RGB
-            image_rgb = cv2.cvtColor(image, cv2.COLOR_BGR2RGB)
-            X_100.append(image_rgb)
-
-    return X_100
 
 
 
@@ -135,32 +95,6 @@ def load_y(wanted_dataset="Training", data_path= DATA_PATH):
     return y
 
 
-
-def load_100_y(wanted_dataset="Training", data_path= DATA_PATH):
-
-    # Normalize dataset name
-    wanted_dataset = wanted_dataset.capitalize()
-
-    # Construct paths
-    images_path_100 = os.path.join(data_path, "100_data", wanted_dataset.lower())
-    path_csv= os.path.join(DATA_PATH, "raw_data", f"RFMiD_{wanted_dataset}_Labels.csv")
-
-    # Load data
-    try:
-        data = pd.read_csv(path_csv)
-    except FileNotFoundError:
-        raise FileNotFoundError(f"CSV file not found at path: {path_csv}")
-
-    # Set index and extract ARMD column
-    if "ID" not in data.columns or "ARMD" not in data.columns:
-        raise ValueError("The required columns ('ID', 'ARMD') are missing from the CSV file.")
-
-    nb_sample = int(len(os.listdir(images_path_100))/2)
-    data1 = data[data["ARMD"]==1].head(nb_sample)["ARMD"]
-    data2 = data[data["ARMD"]==0].head(nb_sample)["ARMD"]
-    y_100 = pd.concat([data1, data2], ignore_index=True)
-
-    return y_100
 
 
 
@@ -284,7 +218,9 @@ def load_and_process_images(wanted_dataset="Training",
     """
 
     X_load = load_X(wanted_dataset)
+    print(f"Toutes les images (X) du dossier {wanted_dataset} sont chargées")
     y = load_y(wanted_dataset)
+    print(f"Toutes les y du dossier {wanted_dataset} sont chargées")
 
     X_processed = []
 
@@ -298,39 +234,8 @@ def load_and_process_images(wanted_dataset="Training",
 
 
 
-def load_and_process_100images(wanted_dataset="Training",
-                               data_path=DATA_PATH,
-                               target_size=(256, 256),
-                               threshold=20):
 
-    """
-    This function loads sample images from a file and processess them as list
-    of np.arrays representing images by cropping and resizing.
-
-    Parameters:
-        wanted_dataset(str): name of desired dataset to load
-        data_path: base path to the data folder, defaults to environment variable DATA_PATH.
-        target_size (tuple): Target size for resizing (width, height), it has a default fo 256x256.
-        threshold (int): Threshold for cropping black regions, it has a default of 20.
-
-    Returns:
-        tuple: two np.arrays, a ndarray representing the images and a ondarray representing the target.
-    """
-
-    X_load = load_100_X(wanted_dataset)
-    y_100 = load_100_y(wanted_dataset)
-
-    X_100_processed = []
-
-    for image in X_load:
-        cropped_images = crop_images(image, threshold)
-        resized_images = resize_images(cropped_images, target_size)
-        normalized_images = normalize_images(resized_images)
-        X_100_processed.append(normalized_images)
-
-    return np.array(X_100_processed), np.array(y_100)
-
-
+######## CHARGEMENT D'UNE IMAGE RANDOM POUR LE PREDICT #########
 
 def load_and_process_random_image(wanted_dataset="testing", data_path=DATA_PATH,
                       target_size=(256, 256), threshold=20):
@@ -382,3 +287,119 @@ def load_and_process_random_image(wanted_dataset="testing", data_path=DATA_PATH,
 
 
     return image_rgb, cropped_image, resized_image, normalized_image, random_file
+
+
+
+
+
+
+
+
+
+##### POUR ENTRAINEMENT ########
+
+
+def load_100_X(wanted_dataset="Training", data_path=DATA_PATH):
+
+    """
+    Loads all images from a specified dataset folder.
+
+    Parameters:
+        wanted_dataset (str): Dataset name, defaults to "Training".
+        data_path (str): Base path to the data folder, defaults to environment variable DATA_PATH.
+
+    Returns:
+        list: A list of images (np.arrays in RGB format).
+    """
+
+    # Normalize dataset name
+    wanted_dataset = wanted_dataset.capitalize()
+
+    # Construct path
+    images_path = os.path.join(data_path, "100_data", wanted_dataset.lower())
+
+    # Check if the folder exists
+    if not os.path.isdir(images_path):
+        raise FileNotFoundError(f"The folder {images_path} does not exist.")
+
+    # Loop through files in the folder
+    X_100 = []
+
+    for file_name in sorted(os.listdir(images_path), key=lambda x: int(x.split('.')[0]) if x.split('.')[0].isdigit() else float('inf')):
+        file_path = os.path.join(images_path, file_name)
+
+        # Check if it is a file
+        if os.path.isfile(file_path):
+            # Read the image
+            image = cv2.imread(file_path)
+            if image is None:
+                print(f"Warning: {file_name} could not be loaded.")
+                continue
+
+            # Convert to RGB
+            image_rgb = cv2.cvtColor(image, cv2.COLOR_BGR2RGB)
+            X_100.append(image_rgb)
+
+    return X_100
+
+
+def load_100_y(wanted_dataset="Training", data_path= DATA_PATH):
+
+    # Normalize dataset name
+    wanted_dataset = wanted_dataset.capitalize()
+
+    # Construct paths
+    images_path_100 = os.path.join(data_path, "100_data", wanted_dataset.lower())
+    path_csv= os.path.join(DATA_PATH, "raw_data", f"RFMiD_{wanted_dataset}_Labels.csv")
+
+    # Load data
+    try:
+        data = pd.read_csv(path_csv)
+    except FileNotFoundError:
+        raise FileNotFoundError(f"CSV file not found at path: {path_csv}")
+
+    # Set index and extract ARMD column
+    if "ID" not in data.columns or "ARMD" not in data.columns:
+        raise ValueError("The required columns ('ID', 'ARMD') are missing from the CSV file.")
+
+    nb_sample = int(len(os.listdir(images_path_100))/2)
+    data1 = data[data["ARMD"]==1].head(nb_sample)["ARMD"]
+    data2 = data[data["ARMD"]==0].head(nb_sample)["ARMD"]
+    y_100 = pd.concat([data1, data2], ignore_index=True)
+
+    return y_100
+
+
+
+
+def load_and_process_100images(wanted_dataset="Training",
+                               data_path=DATA_PATH,
+                               target_size=(256, 256),
+                               threshold=20):
+
+    """
+    This function loads sample images from a file and processess them as list
+    of np.arrays representing images by cropping and resizing.
+
+    Parameters:
+        wanted_dataset(str): name of desired dataset to load
+        data_path: base path to the data folder, defaults to environment variable DATA_PATH.
+        target_size (tuple): Target size for resizing (width, height), it has a default fo 256x256.
+        threshold (int): Threshold for cropping black regions, it has a default of 20.
+
+    Returns:
+        tuple: two np.arrays, a ndarray representing the images and a ondarray representing the target.
+    """
+
+    X_load = load_100_X(wanted_dataset)
+    y_100 = load_100_y(wanted_dataset)
+
+    X_100_processed = []
+
+    for image in X_load:
+        cropped_images = crop_images(image, threshold)
+        resized_images = resize_images(cropped_images, target_size)
+        normalized_images = normalize_images(resized_images)
+        X_100_processed.append(normalized_images)
+
+    return np.array(X_100_processed), np.array(y_100)
