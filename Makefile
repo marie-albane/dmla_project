@@ -18,6 +18,9 @@ run_evaluate:
 
 run_all: run_preprocess run_train run_pred run_evaluate
 
+run_api:
+	uvicorn dmla.api.fast:app --reload
+
 ##################### RUN DMLA #####################
 
 run_100_data:

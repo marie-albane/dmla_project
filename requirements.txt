@@ -21,3 +21,9 @@ pyarrow
 tensorflow-macos==2.10.0; sys_platform == 'darwin' and 'ARM' in platform_version # Mac M-chips
 tensorflow==2.10.0; sys_platform == 'darwin' and 'ARM' not in platform_version # Mac Intel chips
 tensorflow==2.10.0; sys_platform != 'darwin' # Windows & Ubuntu Intel chips
+# install SP pour API 03 12
+fastapi
+pytz            # time zone management
+uvicorn         # web server
+httpx           # HTTP client
+pytest-asyncio
