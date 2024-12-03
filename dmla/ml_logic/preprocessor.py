@@ -19,7 +19,7 @@ def load_X(wanted_dataset="Training", data_path=DATA_PATH):
     Returns:
         list: A list of images (np.arrays in RGB format).
     """
-
+    print("Lancement de load_X pour {wanted_dataset} avec le path {data_path}")
     # Normalize dataset name
     wanted_dataset = wanted_dataset.capitalize()
 
@@ -33,7 +33,7 @@ def load_X(wanted_dataset="Training", data_path=DATA_PATH):
     # Loop through files in the folder
 
     X = []
-    #compteur_load = 0
+    compteur_load = 0
 
 
     for file_name in sorted(os.listdir(images_path), key=lambda x: int(x.split('.')[0]) if x.split('.')[0].isdigit() else float('inf')):
@@ -51,8 +51,8 @@ def load_X(wanted_dataset="Training", data_path=DATA_PATH):
             # Convert to RGB
             image_rgb = cv2.cvtColor(image, cv2.COLOR_BGR2RGB)
             X.append(image_rgb)
-            #compteur_load += 1
-            #print(f"Nombre d'images chargées {compteur_load}")
+            compteur_load += 1
+            print(f"Nombre d'images chargées {compteur_load}")
 
     return X
 
@@ -71,6 +71,7 @@ def load_y(wanted_dataset="Training", data_path= DATA_PATH):
     Returns:
         pd.Series: A Series containing the ARMD target column.
     """
+    print("Lancement de load_y sur {wanted_dataset} avec {data_path}")
 
     # Normalize dataset name
     wanted_dataset = wanted_dataset.capitalize()
@@ -216,6 +217,7 @@ def load_and_process_images(wanted_dataset="Training",
     Returns:
         tuple: two np.arrays, a ndarray representing the images and a ondarray representing the target.
     """
+    print("Lancement de load_and_process_images sur {wanted_dataset}")
 
     X_load = load_X(wanted_dataset)
     print(f"Toutes les images (X) du dossier {wanted_dataset} sont chargées")
@@ -223,12 +225,15 @@ def load_and_process_images(wanted_dataset="Training",
     print(f"Toutes les y du dossier {wanted_dataset} sont chargées")
 
     X_processed = []
+    compteur_preproc = 0
 
     for image in X_load:
         cropped_images = crop_images(image, threshold)
         resized_images = resize_images(cropped_images, target_size)
         normalized_images = normalize_images(resized_images)
         X_processed.append(normalized_images)
+        compteur_preproc += 1
+        print("{compteur_preproc} image(s) preproc dans {wanted_dataset}")
 
     return np.array(X_processed), np.array(y)
 
@@ -251,6 +256,7 @@ def load_and_process_random_image(wanted_dataset="testing", data_path=DATA_PATH,
     Returns:
         np.array: The chosen random image in RGB format.
     """
+    print("Chargement de l'image à analyser dans {wanted_dataset}")
 
     # Normalize dataset name
     wanted_dataset = wanted_dataset.lower()
@@ -285,6 +291,7 @@ def load_and_process_random_image(wanted_dataset="testing", data_path=DATA_PATH,
     resized_image = resize_images(cropped_image, target_size)
     normalized_image = normalize_images(resized_image)
 
+    print("L'image {random_file} du dossier {wanted_dataset} est preproc")
 
     return image_rgb, cropped_image, resized_image, normalized_image, random_file
 
