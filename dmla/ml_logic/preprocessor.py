@@ -240,7 +240,7 @@ def load_and_process_images(wanted_dataset="Training",
 
 
 
-######## CHARGEMENT D'UNE IMAGE RANDOM POUR LE PREDICT #########
+######## CHARGEMENT D'UNE IMAGE RANDOM DE RAW DATA POUR LE PREDICT #########
 
 def load_and_process_random_image(wanted_dataset="testing", data_path=DATA_PATH,
                       target_size=(256, 256), threshold=20):
@@ -297,15 +297,77 @@ def load_and_process_random_image(wanted_dataset="testing", data_path=DATA_PATH,
     return image_rgb, cropped_image, resized_image, normalized_image, random_file
 
 
+######## CHARGEMENT D'UNE IMAGE DU WEB POUR LE PREDICT #########
+
+def load_and_process_web_image(wanted_dataset="web_images", data_path=DATA_PATH,
+                      target_size=(256, 256), threshold=20):
+    """
+    Loads and processes an image from web browser.
+
+    Parameters:
+        wanted_dataset (str): Dataset name, defaults to "web_images".
+        data_path (str): Base path to the data folder, defaults to environment variable DATA_PATH.
+        target_size (tuple): select a desired size for a processed image, default set to 256, 256.
+        threshold: select a desired treshold for cropping, default set to 20.
+
+    Returns:
+        np.array: The chosen random image in RGB format.
+    """
+    print(f"Chargement de l'image à analyser dans {wanted_dataset}")
+
+    # Normalize dataset name
+    wanted_dataset = wanted_dataset.lower()
+
+    # Construct path
+    images_path = os.path.join(data_path, wanted_dataset)
+    print(f"Le dossier de l'image est {images_path}")
 
 
+    # Check if the folder exists
+    if not os.path.isdir(images_path):
+        raise FileNotFoundError(f"The folder {images_path} does not exist.")
 
+    # Get a list of all files in the folder - inutile je pense
+    valid_extensions = ('.png', '.jpg', '.jpeg')  # Add more extensions if needed
+    image_files = [
+        os.path.join(images_path, f) for f in os.listdir(images_path)
+        if os.path.isfile(os.path.join(images_path, f)) and f.lower().endswith(valid_extensions)
+    ]
+    print(f"Voici la liste des images {image_files}")
+
+    if not image_files:
+        raise FileNotFoundError(f"No images found in the folder {images_path}.")
+
+    # Load the most recent image
+    last_file = image_files[0]
+    file_name = os.path.basename(last_file)
+    file_path = os.path.join(images_path, last_file)
+
+
+    print(f"Le last_file est {last_file} ---  Le file_name est {file_name} ----- Le file_path sest {last_file}")
+
+
+    # Load the image
+    image = cv2.imread(file_path)
+    if image is None:
+        raise ValueError(f"Failed to load the image in {image_files}.")
+
+    # Convert the image to RGB
+    image_rgb = cv2.cvtColor(image, cv2.COLOR_BGR2RGB)
+
+    # Process image
+    cropped_image = crop_images(image_rgb, threshold)
+    resized_image = resize_images(cropped_image, target_size)
+    normalized_image = normalize_images(resized_image)
+
+    print("L'image {random_file} du dossier {wanted_dataset} est preproc")
+
+    return image_rgb, cropped_image, resized_image, normalized_image, file_name
 
 
 
 
 ##### POUR ENTRAINEMENT ########
-
 
 def load_100_X(wanted_dataset="Training", data_path=DATA_PATH):
 
