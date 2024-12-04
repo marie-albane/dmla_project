@@ -256,7 +256,7 @@ def load_and_process_random_image(wanted_dataset="testing", data_path=DATA_PATH,
     Returns:
         np.array: The chosen random image in RGB format.
     """
-    print("Chargement de l'image à analyser dans {wanted_dataset}")
+    print(f"Chargement de l'image à analyser dans {wanted_dataset}")
 
     # Normalize dataset name
     wanted_dataset = wanted_dataset.lower()
@@ -276,6 +276,7 @@ def load_and_process_random_image(wanted_dataset="testing", data_path=DATA_PATH,
 
     # Choose a random file
     random_file = random.choice(image_files)
+
     file_path = os.path.join(images_path, random_file)
 
     # Load the image
